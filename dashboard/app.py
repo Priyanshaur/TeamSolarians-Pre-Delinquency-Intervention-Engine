@@ -443,7 +443,7 @@ with tab_overview:
                 avg_outstanding=("outstanding_balance", "mean"),
                 n_customers=("customer_id", "nunique"),
             ).reset_index()
-            weekly_agg["weekly_el"] = weekly_agg["avg_pd"] * weekly_agg["avg_outstanding"] * config.LGD_MEAN * weekly_agg["n_customers"]
+            weekly_agg["weekly_el"] = weekly_agg["avg_pd"] * weekly_agg["avg_outstanding"] * config.LGD_FIXED * weekly_agg["n_customers"]
 
             fig_trend = go.Figure()
             fig_trend.add_trace(go.Scatter(
