@@ -587,7 +587,7 @@ with tab_customers:
     # ── Drill-Down ──
     st.markdown('<div class="section-header">Customer Drill-Down</div>', unsafe_allow_html=True)
 
-    customer_list = filtered["Customer ID"].tolist() if len(filtered) > 0 else scored_df.sort_values("priority_rank")["customer_id"].head(50).tolist()
+    customer_list = filtered["customer_id"].tolist() if len(filtered) > 0 else scored_df.sort_values("priority_rank")["customer_id"].head(50).tolist()
     selected_id = st.selectbox("Select Customer", customer_list, label_visibility="collapsed")
 
     if selected_id:
