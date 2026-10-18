@@ -2,6 +2,24 @@
 
 A loss-optimized early financial stress detection system that identifies behavioral distress signals **2–4 weeks before a missed payment**, quantifies loss exposure, predicts recovery timelines, and prioritizes customers for proactive intervention based on financial impact and intervention effectiveness.
 
+## Results
+
+Evaluated on a hold-out set of 1,000 customers, from a synthetic portfolio of 5,000 customers with 12 weeks of behaviour each (about 13% default rate).
+
+| Model | Metric | Value |
+|---|---|---|
+| Probability of default | AUC-ROC | 0.876 |
+| | Gini | 0.752 |
+| | KS statistic | 0.709 |
+| | Brier score | 0.066 |
+| | Top-decile lift | 5.12x (66% default rate vs 12.9% base) |
+| Recovery time | MAE | 6.2 days |
+| | R² | 0.906 |
+| | 90% interval coverage | 74.6% (intervals are narrower than nominal) |
+| Intervention effectiveness | AUC-ROC | 0.829 |
+
+The data is synthetic and regenerated on each run, so figures vary slightly between runs. These results show that the pipeline works end to end, not how it would perform on real customers. See Limitations below.
+
 ## Core Capabilities
 
 | Capability | Method |
