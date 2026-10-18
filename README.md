@@ -22,18 +22,18 @@ The data is synthetic and regenerated on each run, so figures vary slightly betw
 
 ## Core Capabilities
 
-| Capability | Method |
-|---|---|
-| Early Stress Detection | Multi-signal behavioral analysis across 11 engineered features |
-| Probability of Default (PD) | XGBoost classifier with SMOTE resampling + Platt scaling calibration |
-| Expected Loss (EL) | PD × Exposure × LGD with Monte Carlo tail risk simulation |
-| Loss Velocity | Rate-of-change measurement on expected loss trajectory |
-| Recovery Time Prediction | Quantile regression producing P10/P50/P90 prediction intervals |
-| Intervention Effectiveness | Logistic regression estimating P(intervention prevents default) |
-| Priority Scoring | EL × (1 + Loss Velocity) × (1 + Stress Velocity) × Intervention Effectiveness |
-| Explainability | SHAP TreeExplainer with per-customer risk factor attribution |
-| Smart Alerting | Dynamic thresholds, 7-day cooldown deduplication, employer cluster detection |
-| Agentic Layer | Rule-based intervention strategy, channel selection, outreach message generation |
+| Capability                  | Method                                                                           |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| Early Stress Detection      | Multi-signal behavioral analysis across 11 engineered features                   |
+| Probability of Default (PD) | XGBoost classifier with SMOTE resampling + Platt scaling calibration             |
+| Expected Loss (EL)          | PD × Exposure × LGD with Monte Carlo tail risk simulation                        |
+| Loss Velocity               | Rate-of-change measurement on expected loss trajectory                           |
+| Recovery Time Prediction    | Quantile regression producing P10/P50/P90 prediction intervals                   |
+| Intervention Effectiveness  | Logistic regression estimating P(intervention prevents default)                  |
+| Priority Scoring            | EL × (1 + Loss Velocity) × (1 + Stress Velocity) × Intervention Effectiveness    |
+| Explainability              | SHAP TreeExplainer with per-customer risk factor attribution                     |
+| Smart Alerting              | Dynamic thresholds, 7-day cooldown deduplication, employer cluster detection     |
+| Agentic Layer               | Rule-based intervention strategy, channel selection, outreach message generation |
 
 ## System Architecture
 
@@ -65,7 +65,7 @@ financial_triage/
 
 ## Quick Start
 
-```bash
+```
 # Install dependencies
 pip install -r requirements.txt
 
@@ -78,7 +78,7 @@ python main.py --dashboard
 
 ### Individual Pipeline Stages
 
-```bash
+```
 python main.py --generate-data   # Generate synthetic dataset (5000 customers × 12 weeks)
 python main.py --train            # Train PD, Recovery, and Intervention models
 python main.py --score            # Score & rank all customers
@@ -91,17 +91,20 @@ python main.py --dashboard        # Launch Streamlit dashboard
 ## Model Architecture
 
 ### Model 1: Probability of Default
+
 - **Algorithm**: XGBoost Classifier
 - **Class Imbalance**: SMOTE oversampling on training set + cost-sensitive `scale_pos_weight`
 - **Calibration**: Manual Platt scaling (sigmoid fit on calibration holdout)
 - **Evaluation**: AUC-ROC, KS Statistic, Gini Coefficient, Decile Analysis, Calibration Curve, Lift Chart
 
 ### Model 2: Recovery Time
+
 - **Algorithm**: XGBoost Regressor with quantile loss (`reg:quantileerror`)
 - **Output**: P10 (optimistic), P50 (expected), P90 (pessimistic) prediction intervals
 - **Evaluation**: MAE, RMSE, R², 90% prediction interval coverage
 
 ### Model 3: Intervention Effectiveness
+
 - **Algorithm**: Logistic Regression with L2 regularization
 - **Features**: Tenure, past response rate, autodebit reliability, prior restructuring success
 - **Evaluation**: AUC-ROC
@@ -115,6 +118,7 @@ Priority Score  = EL × (1 + Loss Velocity) × (1 + Stress Velocity) × Interven
 ```
 
 **Monte Carlo Simulation (1,000 iterations):**
+
 - PD sampled from Beta distribution around calibrated probability
 - LGD sampled from Beta(α, β) distribution
 - Outputs: P50, P95, P99 portfolio loss
@@ -122,27 +126,28 @@ Priority Score  = EL × (1 + Loss Velocity) × (1 + Stress Velocity) × Interven
 
 ## Feature Engineering (11 Features)
 
-| Feature | Description |
-|---|---|
-| `salary_delay_proxy` | Rolling z-score of salary credit timing deviation |
-| `savings_decline_pct` | EWMA week-over-week percentage drop in savings |
-| `emi_to_income_ratio` | EMI / Salary, capped at 1.5 |
-| `lending_app_spike` | Z-score vs rolling mean of lending app UPI count |
-| `atm_withdrawal_spike` | Z-score vs rolling mean of ATM withdrawals |
-| `stress_velocity_score` | Weighted acceleration indicator from all signals |
-| `liquidity_buffer_ratio` | Savings / Monthly EMI |
-| `employer_cluster_risk` | Percentile rank of stress within employer group |
-| `failed_autodebit_streak` | Consecutive failed autodebit count |
-| `payment_regularity_score` | Entropy-based payment timing regularity |
-| `low_liquidity_high_emi` | Interaction: low liquidity × high EMI ratio × declining savings |
+| Feature                    | Description                                                     |
+| -------------------------- | --------------------------------------------------------------- |
+| `salary_delay_proxy`       | Rolling z-score of salary credit timing deviation               |
+| `savings_decline_pct`      | EWMA week-over-week percentage drop in savings                  |
+| `emi_to_income_ratio`      | EMI / Salary, capped at 1.5                                     |
+| `lending_app_spike`        | Z-score vs rolling mean of lending app UPI count                |
+| `atm_withdrawal_spike`     | Z-score vs rolling mean of ATM withdrawals                      |
+| `stress_velocity_score`    | Weighted acceleration indicator from all signals                |
+| `liquidity_buffer_ratio`   | Savings / Monthly EMI                                           |
+| `employer_cluster_risk`    | Percentile rank of stress within employer group                 |
+| `failed_autodebit_streak`  | Consecutive failed autodebit count                              |
+| `payment_regularity_score` | Entropy-based payment timing regularity                         |
+| `low_liquidity_high_emi`   | Interaction: low liquidity × high EMI ratio × declining savings |
 
 ## Dashboard
 
 The dashboard is a custom-styled Streamlit application designed to resemble an institutional banking risk tool, not a generic data app.
 
 **Tabs:**
+
 1. **Executive Overview** — Portfolio Risk Index, Total Expected Loss, High Priority count, Intervention Success Rate, EL trend, Loss Velocity heatmap, ROI analysis
-2. **Customer Intelligence** — Filterable priority ranking table with risk badges, customer drill-down with SHAP waterfall, profile, recovery timeline, and AI-generated intervention recommendation
+2. **Customer Intelligence** — Filterable priority ranking table with risk badges, customer drill-down with SHAP waterfall, profile, recovery timeline, and rule-based intervention recommendation
 3. **Explainability** — Global SHAP feature importance, local per-customer explanation with human-readable narrative
 4. **Risk Monitor** — Weekly savings, salary delay, autodebit failure, and lending app trends. Tail risk analysis with EL distribution and P95 scatter
 
@@ -150,16 +155,16 @@ The dashboard is a custom-styled Streamlit application designed to resemble an i
 
 While this prototype operates in batch mode with synthetic data, the system is designed to be production-extensible:
 
-| Component | Prototype | Production Path |
-|---|---|---|
-| **Data Ingestion** | CSV batch generation | Apache Kafka for real-time transaction streaming |
-| **Feature Store** | In-memory pandas | Feast or Tecton for versioned, low-latency feature serving |
-| **Orchestration** | CLI (`main.py`) | Apache Airflow DAGs for scheduled training/scoring pipelines |
-| **Model Serving** | joblib serialization | MLflow Model Registry + BentoML for containerized model serving |
-| **Model Monitoring** | PSI in-memory | Evidently AI or WhyLabs for automated drift detection and alerting |
-| **Dashboard** | Streamlit | Amazon QuickSight, Grafana, or internal React dashboard |
-| **Alerting** | JSON output | Integration with ServiceNow, Jira, or internal CRM for ticket generation |
-| **Storage** | Local filesystem | S3/GCS for artifacts, PostgreSQL/Snowflake for scored results |
+| Component            | Prototype            | Production Path                                                          |
+| -------------------- | -------------------- | ------------------------------------------------------------------------ |
+| **Data Ingestion**   | CSV batch generation | Apache Kafka for real-time transaction streaming                         |
+| **Feature Store**    | In-memory pandas     | Feast or Tecton for versioned, low-latency feature serving               |
+| **Orchestration**    | CLI (`main.py`)      | Apache Airflow DAGs for scheduled training/scoring pipelines             |
+| **Model Serving**    | joblib serialization | MLflow Model Registry + BentoML for containerized model serving          |
+| **Model Monitoring** | PSI in-memory        | Evidently AI or WhyLabs for automated drift detection and alerting       |
+| **Dashboard**        | Streamlit            | Amazon QuickSight, Grafana, or internal React dashboard                  |
+| **Alerting**         | JSON output          | Integration with ServiceNow, Jira, or internal CRM for ticket generation |
+| **Storage**          | Local filesystem     | S3/GCS for artifacts, PostgreSQL/Snowflake for scored results            |
 
 ```
 ┌─────────────┐    ┌──────────────┐    ┌──────────────┐    ┌───────────────┐
@@ -178,18 +183,21 @@ While this prototype operates in batch mode with synthetic data, the system is d
 ## Limitations
 
 - Uses synthetic data — real-world performance will vary
+- The data generator is not seeded, so results change slightly from run to run
 - Intervention effectiveness model uses heuristic synthetic labels (no real A/B test data)
 - LGD distribution parameters are assumed, not calibrated to real portfolio
+- The recovery model's 90% prediction intervals are too narrow (74.6% empirical coverage)
 - Agentic layer uses template-based generation (no LLM API) — recommendations are rule-driven
 - No real-time streaming support (batch scoring simulation only)
 
 ## Testing
 
-```bash
+```
 pytest tests/ -v
 ```
 
 Tests cover:
+
 - Feature engineering: NaN/Inf checks, feature ranges, column presence
 - Loss engine: EL = PD × EAD × LGD, loss velocity direction, priority score monotonicity, Monte Carlo properties
 - Integration: End-to-end small-scale pipeline, alert generation
